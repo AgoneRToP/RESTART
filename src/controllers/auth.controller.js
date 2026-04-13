@@ -4,6 +4,11 @@ import jwt from "jsonwebtoken";
 import jwtConfig from "../configs/jwt.config.js";
 import { signature } from "../configs/signature.config.js";
 import { config } from "dotenv";
+import { BadRequestException } from "../exceptions/bad-request.exception.js"; // 400
+import { PaymentRequiredException } from "../exceptions/payment-required.exception.js"; //402
+import { ForbiddenException } from "../exceptions/forbidden.exception.js"; // 403
+import { NotFoundException } from "../exceptions/not-found.exception.js"; // 404
+import { ConflictException } from "../exceptions/conflict.exception.js"; // 409
 
 config({ quiet: true });
 
@@ -16,71 +21,112 @@ class AuthController {
   }
 
   register = async (req, res, next) => {
-    const { name, email, age, password } = req.body;
+    try {
+      const { name, username, email, age, password } = req.body;
 
-    const existing = await this.#_userModel.findOne({ email });
+      const existing = await this.#_userModel.findOne({ email });
 
-    if (existing) {
-      return res.status(409).send({
-        sucess: false,
-        message: `Given email: ${email} already in use`,
+      if (existing) {
+        throw new ConflictException(`Given email: ${email} already in use`);
+      }
+
+      const hashedPass = await this.#_hashPass(password);
+
+      const user = await this.#_userModel.create({
+        email,
+        name,
+        username,
+        age,
+        password: hashedPass,
       });
+
+      const accessToken = this.#_generateAccessToken({ id: user._id });
+      const refreshToken = this.#_generateRefreshToken({ id: user._id });
+
+      res.cookie("accessToken", accessToken, {
+        signed: true,
+        httpOnly: true,
+        maxAge: 5000,
+      });
+      res.cookie("accessToken", accessToken, {
+        signed: true,
+        httpOnly: true,
+        maxAge: 10000,
+      });
+
+      res.send({
+        success: true,
+        data: {
+          accessToken,
+          refreshToken,
+          userId: user._id,
+        },
+      });
+    } catch (error) {
+      next(error);
     }
-
-    const hashedPass = await this.#_hashPass(password);
-
-    const user = await this.#_userModel.insertOne({
-      email,
-      name,
-      age,
-      password: hashedPass,
-    });
-
-    const accessToken = this.#_generateAccessToken({ id: user._id });
-    const refreshToken = this.#_generateRefreshToken({ id: user._id });
-
-    res.send({
-      success: true,
-      data: {
-        accessToken,
-        refreshToken,
-        userId: user._id,
-      },
-    });
   };
 
   login = async (req, res, next) => {
-    const { email, password } = req.body;
+    try {
+      const { email, password } = req.body;
 
-    const existing = await this.#_userModel.findOne({ email });
+      const existing = await this.#_userModel.findOne({ email });
 
-    if (!existing) {
-      return res.status(409).send({
-        sucess: false,
-        message: `User not found`,
+      if (!existing) {
+        throw new NotFoundException("User not found");
+      }
+
+      const comparePass = await this.#_comparePass(password, existing.password);
+
+      if (!comparePass) {
+        throw new ConflictException("Password is invalid");
+      }
+
+      const accessToken = this.#_generateAccessToken({ id: existing._id });
+      const refreshToken = this.#_generateRefreshToken({ id: existing._id });
+
+      res.cookie("accessToken", accessToken, {
+        signed: true,
+        expires: new Date(Date.now() + 5000),
       });
-    }
-
-    const comparePass = await this.#_comparePass(password, existing.password);
-
-    if (!comparePass) {
-      return res.status(409).send({
-        success: false,
-        message: "Password is invalid",
+      res.cookie("refreshToken", refreshToken, {
+        signed: true,
+        expires: new Date(Date.now() + 10000),
       });
+
+      logger.info(`User logged in successfully: ${email} (ID: ${existing._id})`); 
+
+      res.send({
+        success: true,
+        data: {
+          accessToken,
+          refreshToken,
+          userId: existing._id,
+        },
+      });
+    } catch (error) {
+      next(error);
     }
+  };
 
-    const accessToken = this.#_generateAccessToken({ id: existing._id });
-    const refreshToken = this.#_generateRefreshToken({ id: existing._id });
+  logout = async (req, res, next) => {
+    try {
+      const cookieOptions = {
+        signed: true,
+        httpOnly: true,
+      };
 
-    res.send({
-      success: true,
-      data: {
-        accessToken,
-        refreshToken,
-        userId: existing._id,
-      },
-    });
+      res.clearCookie("accessToken", cookieOptions);
+      res.clearCookie("refreshToken", cookieOptions);
+
+      res.send({
+        success: true,
+        message: "Logged out successfully",
+      });
+    } catch (error) {
+      next(error);
+    }
   };
 
   refresh = async (req, res, next) => {
@@ -88,10 +134,7 @@ class AuthController {
       const { refreshToken } = req.body;
 
       if (!refreshToken) {
-        return res.status(400).send({
-          success: false,
-          message: "Token not given",
-        });
+        throw new BadRequestException("Token not given");
       }
 
       const payload = jwt.verify(
@@ -121,10 +164,7 @@ class AuthController {
     const existing = await this.#_userModel.findOne({ email });
 
     if (!existing) {
-      return res.status(404).send({
-        success: false,
-        message: "User not found",
-      });
+      throw new NotFoundException("User not found");
     }
 
     const signedUrl = signature.sign(
@@ -142,7 +182,33 @@ class AuthController {
     });
   };
 
-  resetPassword = async (req, res, next) => {};
+  resetPassword = async (req, res, next) => {
+    try {
+      const { userId } = req.query;
+      const { password } = req.body;
+
+      const isValid = signature.verify(req.originalUrl);
+
+      if (!isValid) {
+        logger.error(`Failed password reset attempt for user: ${userId}`);
+        throw new ForbiddenException("Link expired or invalid");
+      }
+
+      const hashedPass = await this.#_hashPass(password);
+
+      await this.#_userModel.updateOne(
+        { _id: userId },
+        { $set: { password: hashedPass } },
+      );
+
+      res.send({
+        success: true,
+        message: "Password has been reset successfully",
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
 
   #_hashPass = async (pass) => {
     const hashed = await bcrypt.hash(pass, 10);

@@ -1,8 +1,8 @@
 import { config } from "dotenv";
-import signed from "signed";
+import signedModule from "signed";
 
 config({ quiet: true })
 
-export const signed = signed.default({
+export const signature = signedModule.default({
     secret: process.env.SIGNATURE_KEY,
 })

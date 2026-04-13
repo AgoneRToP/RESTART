@@ -1,25 +1,35 @@
 import mongoose from "mongoose";
 
 const UserSchema = new mongoose.Schema(
-    {
-        name: {
-            type: mongoose.SchemaTypes.String
-        },
-        age: {
-            type: mongoose.SchemaTypes.Number
-        },
-        email: {
-            type: mongoose.SchemaTypes.String
-        },
-        password: {
-            type: mongoose.SchemaTypes.String
-        }
+  {
+    name: {
+      type: mongoose.SchemaTypes.String,
+      required: true,
     },
-    {
-        collection: "user",
-        timestamps: true,
-        versionKey: false,
-    }
-)
+    age: {
+      type: mongoose.SchemaTypes.Number,
+      required: true,
+    },
+    username: {
+      type: mongoose.SchemaTypes.String,
+      required: true,
+      unique: true,
+    },
+    email: {
+      type: mongoose.SchemaTypes.String,
+      required: true,
+      unique: true,
+    },
+    password: {
+      type: mongoose.SchemaTypes.String,
+      required: true,
+    },
+  },
+  {
+    collection: "user",
+    timestamps: true,
+    versionKey: false,
+  },
+);
 
-export const User = mongoose.model("User", UserSchema)
+export const User = mongoose.model("User", UserSchema);

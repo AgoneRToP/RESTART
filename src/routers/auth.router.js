@@ -1,12 +1,14 @@
 import { Router } from "express";
-import authController from "../controllers/auth.controller.js";
+import AuthController from "../controllers/auth.controller.js";
 
 const authRouter = Router();
 
 authRouter
-    .post("/login", authController().login)
-    .post("/register", authController().register)
-    .post("/forgot_password", authController().forgotPassword)
-    .post("/reset_password", authController().resetPassword)
+  .post("/register", AuthController.register)
+  .post("/login", AuthController.login)
+  .post("/logout", AuthController.logout)
+  .post("/refresh", AuthController.refresh)
+  .post("/forgot_password", AuthController.forgotPassword)
+  .post("/reset_password", AuthController.resetPassword);
 
-export default authRouter
+export default authRouter;
