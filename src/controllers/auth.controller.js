@@ -83,7 +83,37 @@ class AuthController {
     });
   };
 
-  refresh = async (req, res, next) => {};
+  refresh = async (req, res, next) => {
+    try {
+      const { refreshToken } = req.body;
+
+      if (!refreshToken) {
+        return res.status(400).send({
+          success: false,
+          message: "Token not given",
+        });
+      }
+
+      const payload = jwt.verify(
+        refreshToken,
+        jwtConfig.REFRESH_TOKEN_SECRET_KEY,
+      );
+
+      const accessToken = this.#_generateAccessToken({
+        id: payload.id,
+        role: payload.role,
+      });
+
+      res.send({
+        success: true,
+        data: {
+          accessToken,
+        },
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
 
   forgotPassword = async (req, res, next) => {
     const { email } = req.body;
