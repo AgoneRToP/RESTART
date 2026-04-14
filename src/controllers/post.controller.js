@@ -4,7 +4,7 @@ import path from "node:path";
 import { BadRequestException } from "../exceptions/bad-request.exception.js";
 import { NotFoundException } from "../exceptions/not-found.exception.js";
 import { ForbiddenException } from "../exceptions/forbidden.exception.js";
-import { sendEmail } from "../helpers/mail.helper.js";
+// import { sendEmail } from "../helpers/mail.helper.js";
 import { PostView } from "../models/post-view.model.js";
 
 class PostController {
@@ -56,11 +56,11 @@ class PostController {
           : null,
       });
 
-      sendEmail(
-        "kebyu001@gmail.com",
-        "Yangi post!",
-        `Yangi post qo'shildi. ID: ${newPost._id}`,
-      );
+      // sendEmail(
+      //   "kebyu001@gmail.com",
+      //   "Yangi post!",
+      //   `Yangi post qo'shildi. ID: ${newPost._id}`,
+      // );
 
       res.send({
         success: true,

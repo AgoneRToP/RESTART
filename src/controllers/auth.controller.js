@@ -95,7 +95,7 @@ class AuthController {
         expires: new Date(Date.now() + 10000),
       });
 
-      logger.info(`User logged in successfully: ${email} (ID: ${existing._id})`); 
+      // logger.info(`User logged in successfully: ${email} (ID: ${existing._id})`); 
 
       res.send({
         success: true,
