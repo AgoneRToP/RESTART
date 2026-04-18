@@ -6,12 +6,13 @@ const exactLevel = (level) =>
 
 const createRotatingTransport = (level) =>
   new DailyRotateFile({
-    dirname: "logs/%DATE%",
-    filename: `${level}.log`,
+    dirname: "logs",
+    filename: `%DATE%-${level}.log`,
     datePattern: "YYYY-MM-DD",
     zippedArchive: true,
     maxSize: "20m",
     maxFiles: "30d",
+    level,
     format: winston.format.combine(exactLevel(level), winston.format.json()),
   });
 

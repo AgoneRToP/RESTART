@@ -6,6 +6,7 @@ import { NotFoundException } from "../exceptions/not-found.exception.js";
 import { ForbiddenException } from "../exceptions/forbidden.exception.js";
 // import { sendEmail } from "../helpers/mail.helper.js";
 import { PostView } from "../models/post-view.model.js";
+import logger from "../helpers/logger.helper.js";
 
 class PostController {
   #_postModel;
@@ -15,6 +16,13 @@ class PostController {
 
   getAll = async (req, res, next) => {
     const posts = await this.#_postModel.find();
+
+    res.render("posts", {
+      title: "All posts",
+      posts: posts,
+    });
+
+    // logger.info(`Rendered posts page for user: ${req.user?.id || 'guest'}`);
 
     res.send({
       success: true,
@@ -79,6 +87,9 @@ class PostController {
           path.join(process.cwd(), `/uploads/${req.files.video[0].filename}`),
         );
       }
+
+      logger.error();
+
       next(error);
     }
   };

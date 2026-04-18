@@ -19,7 +19,7 @@ export const Protected = (isProtected = true) => {
     const token = authorization?.split(" ")[1];
 
     try {
-      const payload = jwt.verify(token, jwtConfig.SECRET_KEY);
+      const payload = jwt.verify(token, jwtConfig.accessKey);
 
       req.user = payload;
 

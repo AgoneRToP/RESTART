@@ -8,12 +8,18 @@ const postRouter = Router();
 
 // postRouter.post("/", upload.single("image") ,postController.create);
 postRouter
-  .get("/", Protected(false), Roles("VIEWER"), postController.getAll)
-  .get("/:id", Protected(false), Roles("USER", "VIEWER"), postController.getOne)
+  .get("/",
+    Protected(false),
+    Roles("VIEWER"),
+    postController.getAll)
+  .get("/:id",
+    Protected(false),
+    Roles("USER", "VIEWER"),
+    postController.getOne)
   .post(
     "/",
-    Protected(true),
-    Roles("ADMIN", "USER"),
+    // Protected(true),
+    // Roles("ADMIN", "USER"),
     upload.fields([
       { name: "image", maxCount: 1 },
       { name: "video", maxCount: 1 },

@@ -5,6 +5,9 @@ import apiRouter from "./routers/index.js";
 import cookieParser from "cookie-parser";
 import { NotFoundException } from "./exceptions/not-found.exception.js"; //404
 import morgan from "morgan";
+import expHbs from "express-handlebars";
+import path from "node:path";
+import router from "./routers/home.js";
 
 const app = express();
 
@@ -12,10 +15,26 @@ app.use(express.json());
 app.use(cookieParser("secret-key"));
 app.use(morgan("dev"));
 
+const hbs = expHbs.create({
+  extname: "hbs",
+  // helpers,
+  defaultLayout: "main",
+  layoutsDir: path.join(process.cwd(), "src", "views", "layouts"),
+  partialsDir: path.join(process.cwd(), "src", "views", "partials"),
+});
+
+app.engine("hbs", hbs.engine);
+app.set("view engine", "hbs");
+app.set("views", path.join(process.cwd(), "src", "views"));
+
+app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
+app.use("/public", express.static(path.join(process.cwd(), "src", "public")));
+
 connectDb()
   .then((res) => console.log(res))
   .catch((err) => console.log(err.message));
 
+app.use("/", router);
 app.use("/api", apiRouter);
 
 app.all("*splat", (req, res) => {

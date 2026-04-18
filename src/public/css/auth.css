@@ -1,0 +1,129 @@
+/* Фон */
+body {
+    background: radial-gradient(circle at top, #0f2027, #0b0c10, #000);
+    font-family: 'Segoe UI', sans-serif;
+    color: #e0e0e0;
+}
+
+/* Заголовок */
+h1 {
+    text-align: center;
+    color: #00e5ff;
+    font-size: 2.5em;
+    margin: 40px 0 25px;
+    letter-spacing: 2px;
+    text-shadow: 0 0 10px #00e5ff, 0 0 20px #00e5ff;
+}
+
+/* Форма (glass effect) */
+form {
+    max-width: 420px;
+    margin: 0 auto;
+    padding: 35px;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(0, 229, 255, 0.2);
+    box-shadow: 0 0 25px rgba(0, 229, 255, 0.15);
+}
+
+/* Labels */
+label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 0.85em;
+    color: #9be7ff;
+    letter-spacing: 1px;
+}
+
+/* Inputs */
+input {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 18px;
+    border-radius: 10px;
+    border: 1px solid rgba(0, 229, 255, 0.3);
+    background: rgba(0, 0, 0, 0.4);
+    color: #e0f7fa;
+    font-size: 0.95em;
+    transition: 0.3s;
+}
+
+/* Фокус */
+input:focus {
+    outline: none;
+    border-color: #00e5ff;
+    box-shadow: 0 0 10px #00e5ff;
+    background: rgba(0, 0, 0, 0.6);
+}
+
+/* Кнопка */
+button {
+    width: 100%;
+    padding: 14px;
+    border-radius: 12px;
+    border: none;
+    background: linear-gradient(135deg, #00e5ff, #7c4dff);
+    color: #000;
+    font-size: 1em;
+    font-weight: 600;
+    cursor: pointer;
+    letter-spacing: 1px;
+    box-shadow: 0 0 15px rgba(0, 229, 255, 0.6);
+    transition: 0.3s;
+}
+
+/* Hover */
+button:hover {
+    box-shadow: 0 0 25px rgba(124, 77, 255, 0.9),
+                0 0 40px rgba(0, 229, 255, 0.7);
+    transform: translateY(-2px);
+}
+
+/* Click */
+button:active {
+    transform: scale(0.97);
+}
+
+/* Ошибка */
+p[style*="color: red"] {
+    background: rgba(255, 0, 60, 0.15);
+    color: #ff4d6d;
+    padding: 12px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 0, 60, 0.4);
+    box-shadow: 0 0 10px rgba(255, 0, 60, 0.4);
+    margin-bottom: 20px;
+}
+
+/* Ссылки */
+a {
+    color: #00e5ff;
+    text-decoration: none;
+    position: relative;
+}
+
+/* Неоновая линия */
+a::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -2px;
+    width: 100%;
+    height: 2px;
+    background: #00e5ff;
+    box-shadow: 0 0 8px #00e5ff;
+    transform: scaleX(0);
+    transition: transform 0.3s;
+}
+
+a:hover::after {
+    transform: scaleX(1);
+}
+
+/* Нижний текст */
+form > p:last-child {
+    text-align: center;
+    margin-top: 20px;
+    color: #aaa;
+}
