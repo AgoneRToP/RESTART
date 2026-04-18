@@ -52,6 +52,10 @@ app.get("/login", (req, res) => {
   res.render("login", { cssFile: "auth" })
 })
 
+app.get("/forgot-password", (req, res) => {
+  res.render("forgot-password", { cssFile: "auth" })
+})
+
 app.all("*splat", (req, res) => {
   throw new NotFoundException(`Given URL: ${req.url} not found`);
 });
