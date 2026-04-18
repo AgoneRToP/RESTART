@@ -8,10 +8,13 @@ import morgan from "morgan";
 import expHbs from "express-handlebars";
 import path from "node:path";
 import router from "./routers/home.js";
+import authController from "./controllers/auth.controller.js";
 
 const app = express();
 
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }))
+
 app.use(cookieParser("secret-key"));
 app.use(morgan("dev"));
 
@@ -36,6 +39,18 @@ connectDb()
 
 app.use("/", router);
 app.use("/api", apiRouter);
+
+// app.get("/", (req, res) => {
+//   res.render("home")
+// })
+
+app.get("/register", (req, res) => {
+  res.render("register", { cssFile: "auth" })
+})
+
+app.get("/login", (req, res) => {
+  res.render("login", { cssFile: "auth" })
+})
 
 app.all("*splat", (req, res) => {
   throw new NotFoundException(`Given URL: ${req.url} not found`);

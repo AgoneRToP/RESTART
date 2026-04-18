@@ -46,15 +46,15 @@ class AuthController {
       res.cookie("accessToken", accessToken, {
         signed: true,
         httpOnly: true,
-        maxAge: 5000,
+        maxAge: 24 * 60 * 60 * 1000,
       });
-      res.cookie("accessToken", accessToken, {
+      res.cookie("refreshToken", refreshToken, {
         signed: true,
         httpOnly: true,
         maxAge: 10000,
       });
 
-      res.send({
+      console.log({
         success: true,
         data: {
           accessToken,
@@ -62,6 +62,7 @@ class AuthController {
           userId: user._id,
         },
       });
+      res.redirect("/")
     } catch (error) {
       next(error);
     }
@@ -97,7 +98,7 @@ class AuthController {
 
       // logger.info(`User logged in successfully: ${email} (ID: ${existing._id})`); 
 
-      res.send({
+      console.log({
         success: true,
         data: {
           accessToken,
@@ -105,6 +106,8 @@ class AuthController {
           userId: existing._id,
         },
       });
+      res.redirect("/")
+
     } catch (error) {
       next(error);
     }
